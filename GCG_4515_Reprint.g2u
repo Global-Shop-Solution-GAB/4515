@@ -1,0 +1,301 @@
+Program.Sub.ScreenSU.Start
+Gui.Form1..create
+Gui.Form1..caption("Reprint Invoices")
+Gui.Form1..size(4905,3510)
+Gui.Form1..minx(0)
+Gui.Form1..miny(0)
+Gui.Form1..position(0,0)
+Gui.Form1..event(UnLoad,form1_unload)
+Gui.Form1..forecolor(0)
+Gui.Form1..fontstyle()
+Gui.Form1..BackColor(-2147483633)
+Gui.Form1..mousepointer(0)
+Gui.Form1..sizeable(False)
+Gui.Form1.cmdOk.create(button)
+Gui.Form1.cmdOk.caption("Ok")
+Gui.Form1.cmdOk.size(1110,375)
+Gui.Form1.cmdOk.position(195,2370)
+Gui.Form1.cmdOk.event(Click,cmdok_click)
+Gui.Form1.cmdOk.defaultvalue("")
+Gui.Form1.lblBegDate.create(label,"Beginning Date",True,1935,255,1,195,1125,True,0,Arial,8,-2147483633,0)
+Gui.Form1.lblBegDate.defaultvalue("")
+Gui.Form1.lblEndDate.create(label,"Ending Date",True,1935,255,1,2460,1125,True,0,Arial,8,-2147483633,0)
+Gui.Form1.lblEndDate.defaultvalue("")
+Gui.Form1.dtpBDate.create(datepicker)
+Gui.Form1.dtpBDate.size(1935,285)
+Gui.Form1.dtpBDate.position(195,1410)
+Gui.Form1.dtpBDate.defaultvalue("")
+Gui.Form1.dtpEDate.create(datepicker)
+Gui.Form1.dtpEDate.size(1935,285)
+Gui.Form1.dtpEDate.position(2490,1410)
+Gui.Form1.dtpEDate.defaultvalue("")
+Gui.Form1.chkIncludeAllDate.Create(CheckBox)
+Gui.Form1.chkIncludeAllDate.Size(1815,360)
+Gui.Form1.chkIncludeAllDate.Position(225,1890)
+Gui.Form1.chkIncludeAllDate.Caption("Include All Dates")
+Gui.Form1.chkIncludeAllDate.Event(Click,chkIncludeAllDate_Click)
+Gui.Form1.lblBegCust.Create(Label,"Customer",True,1695,255,0,195,315,True,0,"Arial",8,-2147483633,0)
+Gui.Form1.txtBegCust.Create(TextBox,"",True,1215,300,0,195,615,True,0,"Arial",8,-2147483643,1)
+Gui.Form1.cmdBegCustBrowse.Create(Button)
+Gui.Form1.cmdBegCustBrowse.Size(330,330)
+Gui.Form1.cmdBegCustBrowse.Position(1545,600)
+Gui.Form1.cmdBegCustBrowse.Caption("^")
+Gui.Form1.cmdBegCustBrowse.Event(Click,cmdBegCustBrowse_Click)
+Program.Sub.ScreenSU.End
+
+Program.Sub.Preflight.Start
+Program.Sub.Preflight.End
+
+Program.Sub.Main.Start
+F.Intrinsic.Control.SetErrorHandler("Main_Err")
+F.Intrinsic.Control.ClearErrors
+
+V.Local.sError.Declare(String)
+
+'Coded by: WAW
+'Date: 5/12/17
+'This project will allow the user to select a customer and date range to reprint invoices for.
+
+'Displays the date selection form
+Gui.Form1..Show
+
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("Main_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_4515_Reprint.g2u",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+	F.Intrinsic.Control.End
+
+Function.Intrinsic.Control.EndIf
+
+
+Program.Sub.Main.End
+
+Program.Sub.form1_unload.Start
+F.Intrinsic.Control.SetErrorHandler("form1_unload_Err")
+F.Intrinsic.Control.ClearErrors
+
+V.Local.sError.Declare(String)
+
+'closes the program
+F.Intrinsic.Control.End
+
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("form1_unload_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_4515_Reprint.g2u",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+	F.Intrinsic.Control.End
+
+Function.Intrinsic.Control.EndIf
+
+
+Program.Sub.form1_unload.End
+
+Program.Sub.cmdok_click.Start
+F.Intrinsic.Control.SetErrorHandler("cmdok_click_Err")
+F.Intrinsic.Control.ClearErrors
+
+V.Local.sError.Declare(String)
+
+'open connection to the database
+F.ODBC.Connection!con.OpenConnection(V.Ambient.PDSN,V.Ambient.PUser,V.Ambient.PPass)
+
+'closes the screen
+Gui.Form1..Visible(false)
+
+'call the reprint sub
+f.Intrinsic.Control.CallSub(reprintreports)
+
+'closes the connection to the database and closes the form
+F.ODBC.Connection!con.Close
+
+F.Intrinsic.Control.CallSub(Form1_unload)
+
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("cmdok_click_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_4515_Reprint.g2u",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+	F.Intrinsic.Control.CallSub(Form1_unload)
+Function.Intrinsic.Control.EndIf
+
+
+Program.Sub.cmdok_click.End
+
+Program.Sub.ReprintReports.Start
+F.Intrinsic.Control.SetErrorHandler("ReprintReports_Err")
+F.Intrinsic.Control.ClearErrors
+
+V.Local.sError.Declare(String)
+V.Local.ssql.Declare(String)
+V.Local.dbdate.Declare(Date)
+V.Local.dedate.Declare(Date)
+v.Local.scust.Declare(String)
+v.Local.sparams.Declare(String)
+V.Local.i.Declare(Long)
+v.Local.spv.Declare(String)
+v.Local.spn.Declare(String)
+v.Local.sinvoice.Declare(String)
+v.Local.ibirunid.Declare(long)
+v.Local.ilog.Declare(long)
+v.Local.bexists.Declare(boolean)
+v.Local.sfilepath.Declare(string)
+v.Local.sfilename.Declare(string)
+
+f.Intrinsic.UI.InvokeWaitDialog("Saving Reports...")
+
+'set the begging and ending dates
+V.Local.dbdate.Set(V.Screen.Form1!dtpBDate.Value)
+V.Local.dedate.Set(V.Screen.Form1!dtpEDate.Value)
+'set the customer
+v.Local.scust.Set(v.Screen.Form1!txtBegCust.Text)
+
+
+'f.Global.BI.GetRunID(v.Local.ibirunid)
+
+'see if the user selected all invoices
+f.Intrinsic.Control.If(v.Screen.Form1!chkIncludeAllDate.Value,=,1)
+	'get all the invoices for that customer
+	f.Intrinsic.String.Build("Select INVOICE from V_AR_OPEN_ITEMS where CUSTOMER = '{0}'",v.Local.scust,V.Local.sSql)
+	f.Data.DataTable.CreateFromSQL("INVOICES","con",v.Local.ssql)
+f.Intrinsic.Control.Else
+	f.Intrinsic.String.Build("Select INVOICE from V_AR_OPEN_ITEMS where CUSTOMER = '{0}' and DATE_INVOICE between '{1}' and '{2}'",v.Local.scust,v.Local.dbdate.PervasiveDate,v.Local.dedate.PervasiveDate,v.Local.sSql)
+	f.Data.DataTable.CreateFromSQL("INVOICES","con",v.Local.ssql)
+f.Intrinsic.Control.EndIf
+
+'loop through the datatable
+F.Intrinsic.Control.For(v.Local.i,0,v.dataTable.INVOICES.RowCount--,1)
+	'set the file name
+	f.Intrinsic.String.Build("{0}{1}",v.Local.scust,v.DataTable.INVOICES(v.Local.i).INVOICE.fieldvaltrim,v.Local.sfilename)	
+'	f.Global.BI.StartLogging(v.Local.ibirunid,55,"-1","",v.Local.ilog)
+	v.Local.sinvoice.Set(v.DataTable.INVOICES(v.Local.i).INVOICE.fieldvaltrim)
+	F.Intrinsic.String.Build("{0}!*!|~|CRYSTAL-OVERRIDE|~|",v.Local.sinvoice,v.local.sparams)
+	'process BI table
+	F.Global.General.CallWrapperSyncBIO(200900,v.local.sparams)
+	'build the parameters and names and print the reports
+	V.Local.sPN.Set("TERMINAL*!*REPORTID*!*TRACK*!*PROGRAM*!*IVCTYPE*!*PRTSHIP*!*PRTORD*!*LOGO")
+	f.Intrinsic.String.Build("{0}*!*{1}*!*{2}*!*{2}*!*{2}*!*{2}*!*{2}*!*{2}",v.Caller.Terminal,"000055","",v.Local.spv)
+'	f.Global.BI.StopLogging(v.Local.ilog)
+	'build the directory path
+	
+	f.Intrinsic.String.Build("{0}{1}","G:\","GSS Reprinted Invoices",v.Local.sfilepath)
+
+	
+'	f.Intrinsic.String.Build("{0}\{1}",v.Caller.FilesDir,"Reprinted Invoices",v.Local.sfilepath)
+	f.Intrinsic.File.DirExists(v.Local.sfilepath,v.Local.bexists)
+'	'see if the directory exists, if not create it	
+	f.Intrinsic.Control.If(v.Local.bexists,=,false)
+		f.Intrinsic.File.CreateDir(v.Local.sfilepath)
+	f.Intrinsic.Control.EndIf
+'
+	f.Intrinsic.String.Build("{0}\{1}",v.local.sfilepath,v.Local.scust,v.Local.sfilepath)
+	f.Intrinsic.File.DirExists(v.Local.sfilepath,v.Local.bexists)
+	'see if the directory exists, if not create it	
+	f.Intrinsic.Control.If(v.Local.bexists,=,false)
+		f.Intrinsic.File.CreateDir(v.Local.sfilepath)
+	f.Intrinsic.Control.EndIf
+
+	f.Intrinsic.String.Build("{0}\{1}{2}",v.Local.sfilepath,v.Local.scust,v.Local.sfilename,v.Local.sfilepath)
+
+'	f.Intrinsic.String.Build("{0}\{1}\{2}\{3}",v.Caller.FilesDir,"Reprinted Invoices",v.Local.scust,v.Local.sfilename,v.Local.sfilepath)
+	f.Intrinsic.File.Exists(v.Local.sfilepath,v.Local.bexists)
+	'see if the directory exists, if not create it	
+	f.Intrinsic.Control.If(v.Local.bexists,=,True)
+		f.Intrinsic.File.DeleteFile(v.Local.sfilepath)
+	f.Intrinsic.Control.EndIf
+
+	f.Intrinsic.String.Split(v.Local.spv,"*!*",v.Local.spv)
+	f.Intrinsic.String.Split(v.Local.spn,"*!*",v.Local.spn)
+'	f.Intrinsic.String.Build("{0}\{1}\{2}\",v.Caller.FilesDir,"Reprinted Invoices",v.Local.scust,v.Local.sfilepath)
+
+	'save the report
+	F.Global.BI.SaveReport("000055",1,V.Local.spn,V.Local.spv,V.Local.sfilepath)
+'	f.Global.BI.RunReportPreProcessor(v.Local.ibirunid,v.Local.ilog,v.Local.spn,v.Local.spv,"",-1,True,"",-1,"",-1,"","",v.Local.ilog)
+f.Intrinsic.Control.Next(v.Local.i)
+
+f.Intrinsic.UI.CloseWaitDialog
+
+f.Intrinsic.UI.Msgbox("Saving Complete")
+
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("ReprintReports_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_4515_Reprint.g2u",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+	f.Intrinsic.Control.CallSub(form1_unload)
+Function.Intrinsic.Control.EndIf
+
+
+Program.Sub.ReprintReports.End
+
+Program.Sub.chkIncludeAllDate_Click.Start
+F.Intrinsic.Control.SetErrorHandler("ScreenSU_Err")
+F.Intrinsic.Control.ClearErrors
+
+V.Local.sError.Declare(String)
+
+'clear the customer textboxes if the value is 1
+f.Intrinsic.Control.If(v.Screen.Form1!chkIncludeAllDate.Value,=,1)
+	gui.Form1.dtpBDate.Enabled(false)
+	gui.Form1.dtpEDate.Enabled(false)
+f.Intrinsic.Control.Else
+	gui.Form1.dtpBDate.Enabled(true)
+	gui.Form1.dtpEDate.Enabled(true)
+f.Intrinsic.Control.EndIf
+
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("ScreenSU_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_4515_Reprint.g2u",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+	f.Intrinsic.Control.CallSub(form1_unload)	
+Function.Intrinsic.Control.EndIf
+
+
+Program.Sub.chkIncludeAllDate_Click.End
+
+Program.Sub.cmdBegCustBrowse_Click.Start
+F.Intrinsic.Control.SetErrorHandler("ReprintReports_Err")
+F.Intrinsic.Control.ClearErrors
+
+V.Local.sError.Declare(String)
+v.Local.sret.Declare(string)
+
+'set the type ahead
+f.Intrinsic.UI.SetBrowserHotTypeAhead(True)
+
+Function.Intrinsic.UI.Browser(205, "Select a customer", Variable.Local.sRet)
+Function.Intrinsic.Control.If(Variable.Local.sRet,"=","***CANCEL***")
+ Function.Intrinsic.UI.Msgbox("No customer was selected!")
+Function.Intrinsic.Control.Else
+ Function.Intrinsic.String.Split(Variable.Local.sRet,"*!*",Variable.Local.sRet)
+	'set the customer in the beg and ending cust textboxes
+	gui.Form1.txtBegCust.Text(v.Local.sret(0))
+Function.Intrinsic.Control.EndIf
+
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("ReprintReports_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_4515_Reprint.g2u",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+	f.Intrinsic.Control.CallSub(form1_unload)	
+Function.Intrinsic.Control.EndIf
+
+
+Program.Sub.cmdBegCustBrowse_Click.End
+
+Program.Sub.Comments.Start
+${$0$}$$}$$}$12:00:00 AM$}$False
+${$3$}$0$}$$}$-1$}$-1$}$$}$1/1/1900$}$Quote Number: 3236
+Customer Name: EMR Corporation
+Contact Name: Lorraine Lively
+Title: Email upon Shipment
+
+Program.Sub.Comments.End
